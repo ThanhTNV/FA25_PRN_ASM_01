@@ -1,0 +1,55 @@
+﻿@model ASM_01.WebApp.Models.VehicleComparisonViewModel
+
+@{
+    ViewData["Title"] = "Vehicle Comparison";
+}
+
+<h2>Vehicle Comparison</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+@if (Model.Vehicles == null || !Model.Vehicles.Any())
+{
+    <p>No vehicles available for comparison.</p>
+}
+else
+{
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Specification</th>
+                @foreach (var vehicle in Model.Vehicles)
+                {
+                    <th>
+                        @vehicle.ModelName @vehicle.TrimName <br />
+                        <small>Price: @vehicle.Price.ToString("C")</small><br />
+                        <small>Effective: @vehicle.EffectiveDate.ToShortDateString()</small>
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var specKey in Model.SpecificationKeys)
+            {
+                <tr>
+                    <td>@specKey</td>
+                    @foreach (var vehicle in Model.Vehicles)
+                    {
+                        <td>
+                            @(vehicle.Specifications.ContainsKey(specKey)
+                                            ? vehicle.Specifications[specKey]
+                                            : "-")
+            </td>
+                        }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-action="Catalog" class="btn btn-secondary">Back to Catalog</a>

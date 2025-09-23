@@ -1,0 +1,54 @@
+﻿@model IEnumerable<ASM_01.WebApp.Models.VehicleCatalogViewModel>
+
+@{
+    ViewData["Title"] = "Vehicle Catalog";
+}
+
+<!-- Search Bar -->
+<form asp-action="Catalog" method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="searchTerm" class="form-control" placeholder="Search by model or trim..." value="@Context.Request.Query["searchTerm"]" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+<h2>Vehicle Catalog</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+<form asp-action="Comparison" method="get">
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Model</th>
+                <th>Trim</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vehicle in Model)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" name="ids" value="@vehicle.VehicleId" />
+                    </td>
+                    <td>@vehicle.ModelName</td>
+                    <td>@vehicle.TrimName</td>
+                    <td>@vehicle.Price.ToString("C")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@vehicle.VehicleId" class="btn btn-info btn-sm">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Compare Selected</button>
+</form>

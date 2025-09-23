@@ -1,0 +1,54 @@
+﻿@model ASM_01.WebApp.Models.VehicleDetailsViewModel
+
+@{
+    ViewData["Title"] = "Vehicle Details";
+}
+
+<h2>@Model.ModelName - @Model.TrimName</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h4 class="card-title">@Model.ModelName @Model.TrimName</h4>
+        <h5 class="card-subtitle mb-2 text-muted">
+            Price: @Model.Price.ToString("C")
+        </h5>
+        <p class="card-text">
+            <strong>Effective Date:</strong> @Model.EffectiveDate.ToShortDateString()
+        </p>
+
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <p class="card-text">
+                <strong>Description:</strong> @Model.Description
+            </p>
+        }
+    </div>
+</div>
+
+<h3>Specifications</h3>
+@if (Model.Specifications != null && Model.Specifications.Any())
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Specification</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var spec in Model.Specifications)
+            {
+                <tr>
+                    <td>@spec.Key</td>
+                    <td>@spec.Value</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No specifications available for this vehicle.</p>
+}
+
+<a asp-action="Catalog" class="btn btn-secondary">Back to Catalog</a>
