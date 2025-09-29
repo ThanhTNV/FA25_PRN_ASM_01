@@ -1,0 +1,72 @@
+﻿@model List<PendingRequestViewModel>
+
+@{
+    ViewData["Title"] = "Pending Requests";
+}
+
+<h2>📬 Pending Distribution Requests</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">✅ No pending requests at the moment.</div>
+}
+else
+{
+    <table class="table table-striped table-hover mt-3">
+        <thead class="table-light">
+            <tr>
+                <th>Request ID</th>
+                <th>Dealer</th>
+                <th>Model</th>
+                <th>Trim</th>
+                <th>Model Year</th>
+                <th>Requested Qty</th>
+                <th>Status</th>
+                <th>Request Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var req in Model)
+            {
+                <tr>
+                    <td>@req.RequestId</td>
+                    <td>@req.DealerName</td>
+                    <td>@req.ModelName</td>
+                    <td>@req.TrimName</td>
+                    <td>@req.ModelYear</td>
+                    <td>@req.RequestQuantity</td>
+                    <td><span class="badge bg-warning text-dark">@req.Status</span></td>
+                    <td>@req.RequestDate.ToString("yyyy-MM-dd")</td>
+                    <td class="d-flex gap-2">
+                        <form asp-action="Approve" method="post" class="d-inline">
+                            <input type="hidden" name="requestId" value="@req.RequestId" />
+                            <input type="number" name="approvedQty" min="0" max="@req.RequestQuantity" value="@req.RequestQuantity" class="form-control d-inline w-50" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                        </form>
+
+                        <form asp-action="Reject" method="post" class="d-inline ms-1">
+                            <input type="hidden" name="requestId" value="@req.RequestId" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="mt-4">
+    <a asp-action="Index" class="btn btn-secondary">📜 View All Requests</a>
+</div>

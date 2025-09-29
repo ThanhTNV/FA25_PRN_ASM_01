@@ -1,0 +1,95 @@
+﻿@model List<DistRequestRowViewModel>
+
+@{
+    ViewData["Title"] = "All Distribution Requests";
+}
+
+<h2>📦 All Distribution Requests</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">No requests found.</div>
+}
+else
+{
+    <table class="table table-bordered table-hover mt-3">
+        <thead class="table-light">
+            <tr>
+                <th>Request ID</th>
+                <th>Dealer</th>
+                <th>Model</th>
+                <th>Trim</th>
+                <th>Model Year</th>
+                <th>Requested Qty</th>
+                <th>Approved Qty</th>
+                <th>Status</th>
+                <th>Request Date</th>
+                <th>Approval Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var req in Model)
+            {
+                <tr>
+                    <td>@req.RequestId</td>
+                    <td>@req.DealerName</td>
+                    <td>@req.ModelName</td>
+                    <td>@req.TrimName</td>
+                    <td>@req.ModelYear</td>
+                    <td>@req.RequestQuantity</td>
+                    <td>@req.ApprovedQuantity</td>
+                    <td>
+                        @switch (req.Status?.ToLower())
+                        {
+                            case "pending":
+                                <span class="badge bg-warning text-dark">Pending</span>
+                                break;
+                            case "approved":
+                                <span class="badge bg-success">Approved</span>
+                                break;
+                            case "rejected":
+                                <span class="badge bg-danger">Rejected</span>
+                                break;
+                            case "completed":
+                                <span class="badge bg-primary">Completed</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">@req.Status</span>
+                                break;
+                        }
+                    </td>
+                    <td>@req.RequestDate.ToString("yyyy-MM-dd")</td>
+                    <td>@(req.ApprovalDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                    <td>
+                        @if (req.Status?.Equals("Approved", StringComparison.OrdinalIgnoreCase) == true)
+                        {
+                            <form asp-action="Complete" method="post" class="d-inline">
+                                <input type="hidden" name="requestId" value="@req.RequestId" />
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-primary btn-sm">Complete</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="text-muted">-</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="mt-4">
+    <a asp-action="Pending" class="btn btn-secondary">⏳ View Pending Requests</a>
+</div>

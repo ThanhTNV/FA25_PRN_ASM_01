@@ -1,0 +1,35 @@
+﻿@model List<ASM_01.WebApp.Models.DealerStockViewModel>
+
+<h2>Dealer Stock</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Model Name</th>
+            <th>Trim Name</th>
+            <th>Model Year</th>
+            <th>Quantity</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var stock in Model)
+        {
+            <tr>
+                <td>@stock.ModelName</td>
+                <td>@stock.TrimName</td>
+                <td>@(stock.ModelYear?.ToString() ?? "-")</td>
+                <td>@stock.Quantity</td>
+                <td>
+                    <a asp-controller="Stock" asp-action="Details" asp-route-trimId="@stock.EvTrimId" class="btn btn-sm btn-info">
+                        Details
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@if (User.IsInRole("DISTRIBUTOR"))
+{
+    <a asp-controller="Inventory" asp-action="Index" class="btn btn-secondary">Back to Dealers</a>
+}

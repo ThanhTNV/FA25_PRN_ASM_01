@@ -24,6 +24,7 @@ namespace ASM_01.BusinessLayer.Services
             {
                 return new AuthDto
                 {
+                    Id = 1, // In a real application, this would be the user's ID from the database.
                     Username = username,
                     Role = username.ToUpper()
                 };

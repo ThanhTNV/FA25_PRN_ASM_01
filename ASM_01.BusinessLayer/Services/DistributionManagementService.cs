@@ -1,4 +1,5 @@
-﻿using ASM_01.DataAccessLayer.Entities.Warehouse;
+﻿using ASM_01.BusinessLayer.DTOs;
+using ASM_01.DataAccessLayer.Entities.Warehouse;
 using ASM_01.DataAccessLayer.Enums;
 using ASM_01.DataAccessLayer.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -145,13 +146,79 @@ public class DistributionManagementService
         return req;
     }
 
-    public async Task<IReadOnlyList<DistributionRequest>> GetRequestsAsync(int dealerId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<DistributionRequestDto>> GetRequestsByDealerIdAsync(int dealerId, CancellationToken ct = default)
     {
-        return await _db.DistributionRequests
+        var requests = await _db.DistributionRequests
             .AsNoTracking()
             .Where(r => r.DealerId == dealerId)
+            .Include(r => r.EvTrim).ThenInclude(t => t.EvModel)          // include EvModel through EvTrim
             .OrderByDescending(r => r.RequestedAt)
             .ToListAsync(ct);
+
+        var dtos = requests.Select(r => new DistributionRequestDto
+        {
+            RequestId = r.DistributionRequestId,
+            ModelName = r.EvTrim?.EvModel?.ModelName ?? "N/A",
+            TrimName = r.EvTrim?.TrimName ?? "N/A",
+            RequestQuantity = r.RequestedQuantity,
+            ApprovedQuantity = r.ApprovedQuantity ?? 0,
+            ModelYear = r.EvTrim?.ModelYear ?? DateTime.MinValue.Year,
+            ApprovalDate = r.ApprovedAt,
+            RequestDate = r.RequestedAt,
+            Status = r.Status.ToString()
+        }).ToList();
+
+        return dtos;
+    }
+    
+    public async Task<IReadOnlyList<DistributionRequestDto>> GetPendingRequestsAsync(CancellationToken ct = default)
+    {
+        var requests = await _db.DistributionRequests
+            .AsNoTracking()
+            .Where(r => r.Status == DistributionStatus.Pending)
+            .Include(r => r.EvTrim).ThenInclude(t => t.EvModel)          // include EvModel through EvTrim
+            .Include(r => r.Dealer)                                      // include Dealer
+            .OrderBy(r => r.RequestedAt)
+            .ToListAsync(ct);
+        var dtos = requests.Select(r => new DistributionRequestDto
+        {
+            RequestId = r.DistributionRequestId,
+            ModelName = r.EvTrim?.EvModel?.ModelName ?? "N/A",
+            TrimName = r.EvTrim?.TrimName ?? "N/A",
+            RequestQuantity = r.RequestedQuantity,
+            ApprovedQuantity = r.ApprovedQuantity ?? 0,
+            ModelYear = r.EvTrim?.ModelYear ?? DateTime.MinValue.Year,
+            ApprovalDate = r.ApprovedAt,
+            RequestDate = r.RequestedAt,
+            DealerName = r.Dealer?.Name ?? "N/A",
+            Status = r.Status.ToString()
+        }).ToList();
+        return dtos;
+    }
+
+    public async Task<IEnumerable<DistributionRequestDto>> GetAllRequestsAsync(CancellationToken ct = default)
+    {
+        var requests = await _db.DistributionRequests
+            .AsNoTracking()
+            .Include(r => r.EvTrim).ThenInclude(t => t.EvModel)          // include EvModel through EvTrim
+            .Include(r => r.Dealer)                                      // include Dealer
+            .OrderByDescending(r => r.RequestedAt)
+            .ToListAsync(ct);
+        var dtos = requests.Select(r => new DistributionRequestDto
+        {
+            RequestId = r.DistributionRequestId,
+            ModelName = r.EvTrim?.EvModel?.ModelName ?? "N/A",
+            TrimName = r.EvTrim?.TrimName ?? "N/A",
+            RequestQuantity = r.RequestedQuantity,
+            ApprovedQuantity = r.ApprovedQuantity ?? 0,
+            ModelYear = r.EvTrim?.ModelYear ?? DateTime.MinValue.Year,
+            ApprovalDate = r.ApprovedAt,
+            RequestDate = r.RequestedAt,
+            DealerName = r.Dealer?.Name ?? "N/A",
+            Status = r.Status.ToString()
+        }).ToList();
+
+        return dtos;
     }
 }
 

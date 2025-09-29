@@ -1,0 +1,71 @@
+﻿@model EditVehicleTrimViewModel
+@{
+    ViewData["Title"] = "Edit Vehicle Trim";
+    var isCreate = (Model == null) || Model.EvTrimId == 0;
+}
+
+<h2>@(isCreate ? "Create Vehicle Trim" : "Edit Vehicle Trim")</h2>
+
+@if (!isCreate)
+{
+    <div class="alert alert-info">
+        You are editing an existing trim. The vehicle model cannot be changed.
+    </div>
+}
+
+<form asp-controller="Vehicle" asp-action="EditTrim" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="EvTrimId" />
+
+    <div class="mb-3">
+        <label asp-for="EvModelId" class="form-label">Model</label>
+
+        @if (isCreate)
+        {
+            <!-- Create mode: dropdown is editable -->
+            <select asp-for="EvModelId" asp-items="ViewBag.ModelList" class="form-control"></select>
+        }
+        else
+        {
+            <!-- Edit mode: model locked, shown as read-only text -->
+            <input type="hidden" asp-for="EvModelId" />
+            <input type="text" class="form-control" value="@ViewBag.ModelName" readonly />
+        }
+
+        <span asp-validation-for="EvModelId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="TrimName" class="form-label"></label>
+        <input asp-for="TrimName" class="form-control" />
+        <span asp-validation-for="TrimName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ModelYear" class="form-label"></label>
+        <input asp-for="ModelYear" type="number" class="form-control" min="1900" max="2100" />
+        <span asp-validation-for="ModelYear" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    @* Optional: new price *@
+    <div class="mb-3">
+        <label asp-for="NewListedPrice" class="form-label">New Price (optional)</label>
+        <input asp-for="NewListedPrice" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="NewListedPrice" class="text-danger"></span>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Catalog" asp-controller="Vehicle" class="btn btn-outline-secondary">Back</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

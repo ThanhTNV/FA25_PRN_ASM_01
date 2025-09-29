@@ -1,19 +1,19 @@
 ﻿using ASM_01.BusinessLayer.DTOs;
+using ASM_01.DataAccessLayer.Entities.VehicleModels;
 using ASM_01.DataAccessLayer.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace ASM_01.BusinessLayer.Services;
 
-public class VehicleService(EVRetailsDbContext dbContext)
+public class VehicleService(EVRetailsDbContext _db)
 {
     public async Task<IEnumerable<VehicleDto>> GetAllVehicles()
     {
-        var trims = await dbContext.EvTrims
-    .Include(t => t.EvModel)
-    .Include(t => t.Prices)
-    .ToListAsync();
+        var trims = await _db.EvTrims
+            .Include(t => t.EvModel)
+            .Include(t => t.Prices)
+            .ToListAsync();
 
-        // Step 1: Project base info (without specs)
         var vehicles = trims.Select(t =>
         {
             var latestPrice = t.Prices
@@ -22,21 +22,22 @@ public class VehicleService(EVRetailsDbContext dbContext)
 
             return new VehicleDto
             {
+                ModelId = t.EvModelId,
                 VehicleId = t.EvTrimId,
                 ModelName = t.EvModel.ModelName,
                 TrimName = t.TrimName,
+                TrimId = t.EvTrimId,
+                ModelYear = t.ModelYear,
                 Price = latestPrice?.ListedPrice ?? 0,
                 EffectiveDate = latestPrice?.EffectiveDate ?? DateTime.MinValue,
                 Specifications = new Dictionary<string, string>() // fill later
             };
         }).ToList();
 
-        // Step 2: Load specifications separately
-        var specs = await dbContext.TrimSpecs
+        var specs = await _db.TrimSpecs
             .Include(ts => ts.Spec)
             .ToListAsync();
 
-        // Step 3: Merge specs into vehicles
         foreach (var v in vehicles)
         {
             var vehicleSpecs = specs
@@ -53,22 +54,19 @@ public class VehicleService(EVRetailsDbContext dbContext)
 
     public async Task<VehicleDto?> GetVehicleById(int id)
     {
-        // 1. Load trim and model
-        var trim = await dbContext.EvTrims
+        var trim = await _db.EvTrims
             .Include(t => t.EvModel)
             .FirstOrDefaultAsync(t => t.EvTrimId == id);
 
         if (trim == null)
             return null;
 
-        // 2. Load latest price
-        var latestPrice = await dbContext.TrimPrices
+        var latestPrice = await _db.TrimPrices
             .Where(p => p.EvTrimId == id)
             .OrderByDescending(p => p.EffectiveDate)
             .FirstOrDefaultAsync();
 
-        // 3. Load specifications
-        var specs = await dbContext.TrimSpecs
+        var specs = await _db.TrimSpecs
             .Where(ts => ts.EvTrimId == id)
             .Include(ts => ts.Spec)
             .ToDictionaryAsync(
@@ -76,9 +74,9 @@ public class VehicleService(EVRetailsDbContext dbContext)
                 ts => ts.Value + (ts.Spec.Unit != null ? $" {ts.Spec.Unit}" : "")
             );
 
-        // 4. Map into DTO
         return new VehicleDto
         {
+            ModelId = trim.EvModelId,
             VehicleId = trim.EvTrimId,
             ModelName = trim.EvModel.ModelName,
             TrimName = trim.TrimName,
@@ -93,8 +91,7 @@ public class VehicleService(EVRetailsDbContext dbContext)
     {
         keyword = keyword.ToLower();
 
-        // 1. Get matching trims + models
-        var trims = await dbContext.EvTrims
+        var trims = await _db.EvTrims
             .Include(t => t.EvModel)
             .Where(t =>
                 t.EvModel.ModelName.ToLower().Contains(keyword) ||
@@ -103,8 +100,7 @@ public class VehicleService(EVRetailsDbContext dbContext)
 
         var trimIds = trims.Select(t => t.EvTrimId).ToList();
 
-        // 2. Get latest prices for these trims
-        var prices = await dbContext.TrimPrices
+        var prices = await _db.TrimPrices
             .Where(p => trimIds.Contains(p.EvTrimId))
             .GroupBy(p => p.EvTrimId)
             .Select(g => g.OrderByDescending(p => p.EffectiveDate).FirstOrDefault())
@@ -114,8 +110,7 @@ public class VehicleService(EVRetailsDbContext dbContext)
             .Where(p => p != null)
             .ToDictionary(p => p!.EvTrimId, p => p);
 
-        // 3. Get specs for these trims
-        var trimSpecs = await dbContext.TrimSpecs
+        var trimSpecs = await _db.TrimSpecs
             .Where(ts => trimIds.Contains(ts.EvTrimId))
             .Include(ts => ts.Spec)
             .ToListAsync();
@@ -130,7 +125,6 @@ public class VehicleService(EVRetailsDbContext dbContext)
                 )
             );
 
-        // 4. Map DTOs
         var result = trims.Select(t =>
         {
             var latestPrice = priceDict.ContainsKey(t.EvTrimId) ? priceDict[t.EvTrimId] : null;
@@ -138,6 +132,7 @@ public class VehicleService(EVRetailsDbContext dbContext)
 
             return new VehicleDto
             {
+                ModelId = t.EvModelId,
                 VehicleId = t.EvTrimId,
                 ModelName = t.EvModel.ModelName,
                 TrimName = t.TrimName,
@@ -154,13 +149,13 @@ public class VehicleService(EVRetailsDbContext dbContext)
     public async Task<IEnumerable<VehicleComparisonDto>> CompareVehicles(int[] vehicleIds)
     {
         // 1. Load trims + models
-        var trims = await dbContext.EvTrims
+        var trims = await _db.EvTrims
             .Include(t => t.EvModel)
             .Where(t => vehicleIds.Contains(t.EvTrimId))
             .ToListAsync();
 
         // 2. Load latest prices for these trims
-        var prices = await dbContext.TrimPrices
+        var prices = await _db.TrimPrices
             .Where(p => vehicleIds.Contains(p.EvTrimId))
             .GroupBy(p => p.EvTrimId)
             .Select(g => g.OrderByDescending(p => p.EffectiveDate).FirstOrDefault())
@@ -171,7 +166,7 @@ public class VehicleService(EVRetailsDbContext dbContext)
             .ToDictionary(p => p!.EvTrimId, p => p);
 
         // 3. Load specs for these trims
-        var trimSpecs = await dbContext.TrimSpecs
+        var trimSpecs = await _db.TrimSpecs
             .Where(ts => vehicleIds.Contains(ts.EvTrimId))
             .Include(ts => ts.Spec)
             .ToListAsync();
@@ -206,4 +201,115 @@ public class VehicleService(EVRetailsDbContext dbContext)
         return result;
     }
 
+    public async Task<EvModel> CreateVehicleModelAsync(CreateVehicleModelDto dto, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(dto.ModelName))
+            throw new ArgumentException("Model name is required.");
+
+        var exists = await _db.EvModels.AnyAsync(m => m.ModelName == dto.ModelName, ct);
+        if (exists)
+            throw new InvalidOperationException("A model with this name already exists.");
+
+        var model = new EvModel
+        {
+            ModelName = dto.ModelName,
+            Description = dto.Description,
+            Status = dto.Status
+        };
+
+        _db.EvModels.Add(model);
+        await _db.SaveChangesAsync(ct);
+
+        return model;
+    }
+
+    public async Task<EvTrim> CreateVehicleTrimAsync(CreateVehicleTrimDto dto, CancellationToken ct = default)
+    {
+        // Validate model exists
+        var model = await _db.EvModels.FindAsync(dto.EvModelId , ct)
+                    ?? throw new InvalidOperationException("Vehicle model not found.");
+
+        var trim = new EvTrim
+        {
+            EvModelId = dto.EvModelId,
+            TrimName = dto.TrimName,
+            ModelYear = dto.ModelYear,
+            Description = dto.Description
+        };
+
+        _db.EvTrims.Add(trim);
+        await _db.SaveChangesAsync(ct);
+
+        // Optional: create initial price
+        if (dto.ListedPrice.HasValue)
+        {
+            var price = new TrimPrice
+            {
+                EvTrimId = trim.EvTrimId,
+                ListedPrice = dto.ListedPrice.Value,
+                EffectiveDate = DateTime.UtcNow
+            };
+            _db.TrimPrices.Add(price);
+            await _db.SaveChangesAsync(ct);
+        }
+
+        return trim;
+    }
+
+    public async Task<EvModel> UpdateVehicleModelStatusAsync(UpdateVehicleModelStatusDto dto, CancellationToken ct = default)
+    {
+        // Find the model
+        var model = await _db.EvModels
+            .FirstOrDefaultAsync(m => m.EvModelId == dto.EvModelId, ct)
+            ?? throw new InvalidOperationException("Vehicle model not found.");
+
+        // Update status
+        model.Status = dto.Status;
+
+        _db.EvModels.Update(model);
+        await _db.SaveChangesAsync(ct);
+
+        return model;
+    }
+    public async Task<TrimPrice> UpdateVehicleTrimPriceAsync(UpdateVehicleTrimPriceDto dto, CancellationToken ct = default)
+    {
+        if (dto.NewListedPrice <= 0)
+            throw new ArgumentOutOfRangeException(nameof(dto.NewListedPrice), "Price must be greater than zero.");
+
+        // Validate trim exists
+        var trim = await _db.EvTrims
+            .FirstOrDefaultAsync(t => t.EvTrimId == dto.EvTrimId, ct)
+            ?? throw new InvalidOperationException("EV Trim not found.");
+
+        // Create new price record (we keep history)
+        var newPrice = new TrimPrice
+        {
+            EvTrimId = dto.EvTrimId,
+            ListedPrice = dto.NewListedPrice,
+            EffectiveDate = dto.EffectiveDate ?? DateTime.UtcNow
+        };
+
+        _db.TrimPrices.Add(newPrice);
+        await _db.SaveChangesAsync(ct);
+
+        return newPrice;
+    }
+
+    public async Task<VehicleModelDto?> GetModelAsync(int id)
+    {
+        var model = await _db.EvModels
+            .Include(m => m.Trims)
+            .ThenInclude(t => t.Prices)
+            .FirstOrDefaultAsync(m => m.EvModelId == id);
+
+        if (model == null) return null;
+
+        return new VehicleModelDto
+        {
+            EvModelId = model.EvModelId,
+            ModelName = model.ModelName,
+            Description = model.Description,
+            Status = model.Status
+        };
+    }
 }

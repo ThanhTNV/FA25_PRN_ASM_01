@@ -1,0 +1,29 @@
+﻿@model List<ASM_01.WebApp.Models.DealerViewModel>
+
+<h2>Dealers</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Dealer ID</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th></th> @* Actions column *@
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var dealer in Model)
+        {
+            <tr>
+                <td>@dealer.DealerId</td>
+                <td>@dealer.Name</td>
+                <td>@dealer.Address</td>
+                <td>
+                    <a asp-controller="Stock" asp-action="Dealer" asp-route-dealerId="@dealer.DealerId" class="btn btn-sm btn-primary">
+                        View Stock
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

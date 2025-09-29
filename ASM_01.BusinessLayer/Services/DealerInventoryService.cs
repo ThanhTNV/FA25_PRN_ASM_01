@@ -1,5 +1,4 @@
 ﻿using ASM_01.BusinessLayer.DTOs;
-using ASM_01.DataAccessLayer.Entities.Warehouse;
 using ASM_01.DataAccessLayer.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +11,19 @@ public class DealerInventoryService
     public DealerInventoryService(EVRetailsDbContext db)
     {
         _db = db;
+    }
+    public async Task<IReadOnlyList<DealerDto>> GetDealers(CancellationToken ct = default)
+    {
+        return await _db.Dealers
+            .AsNoTracking()
+            .Select(d => new DealerDto
+            {
+                DealerId = d.DealerId,
+                Name = d.Name,
+                Address = d.Address
+            })
+            .OrderBy(d => d.Name)
+            .ToListAsync(ct);
     }
 
     public async Task<int> GetStockByTrimAsync(int dealerId, int evTrimId, CancellationToken ct = default)

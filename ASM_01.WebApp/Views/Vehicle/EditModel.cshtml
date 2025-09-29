@@ -1,0 +1,48 @@
+﻿@using ASM_01.DataAccessLayer.Enums
+@model EditVehicleModelViewModel
+@{
+    ViewData["Title"] = "Edit Vehicle Model";
+    var isCreate = (Model == null) || Model.EvModelId == 0;
+    var roAttr = isCreate ? "false" : "true";   // minimized attribute for inputs/textarea
+}
+
+<h2>@(isCreate ? "Create Vehicle Model" : "Edit Vehicle Model")</h2>
+
+@if (!isCreate)
+{
+    <div class="alert alert-info">In edit mode, only <strong>Status</strong> can be changed. Model Name and Description are locked.</div>
+}
+
+<form asp-controller="Vehicle" asp-action="EditModel" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="EvModelId" />
+
+    <div class="mb-3">
+        <label asp-for="ModelName" class="form-label"></label>
+        <input asp-for="ModelName" class="form-control" readonly="@roAttr" />
+        <span asp-validation-for="ModelName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="3" readonly="@roAttr"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Status" class="form-label"></label>
+        <select asp-for="Status"
+                asp-items="Html.GetEnumSelectList<EvStatus>()"
+                class="form-control"></select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Catalog" asp-controller="Vehicle" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

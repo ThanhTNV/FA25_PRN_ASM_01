@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace ASM_01.BusinessLayer.DTOs
 {
-    public class AuthDto
+    public class DealerDto
     {
-        public int Id { get; set; }
-        public string Username { get; set; } = null!;
-
-        public string Role { get; set; } = null!;
+        public int DealerId { get; set; }
+        public string? Name { get; set; } = null!;
+        public string? Address { get; set; }
     }
 }

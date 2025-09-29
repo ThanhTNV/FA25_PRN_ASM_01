@@ -52,3 +52,11 @@ else
 }
 
 <a asp-action="Catalog" class="btn btn-secondary">Back to Catalog</a>
+@if (User.IsInRole("DISTRIBUTOR"))
+{
+    <a asp-controller="Inventory" asp-action="Index" class="btn btn-secondary">Back to Dealers</a>
+}
+@if (User.IsInRole("DEALER"))
+{
+    <a asp-controller="Stock" asp-action="Index" class="btn btn-secondary">Back to Inventory</a>
+}
