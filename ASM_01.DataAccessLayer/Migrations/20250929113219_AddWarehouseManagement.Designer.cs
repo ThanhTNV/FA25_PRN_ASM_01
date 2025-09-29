@@ -4,6 +4,7 @@ using ASM_01.DataAccessLayer.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ASM_01.DataAccessLayer.Migrations
 {
     [DbContext(typeof(EVRetailsDbContext))]
-    partial class EVRetailsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250929113219_AddWarehouseManagement")]
+    partial class AddWarehouseManagement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

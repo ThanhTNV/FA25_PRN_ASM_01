@@ -1,6 +1,6 @@
 ﻿using ASM_01.DataAccessLayer.Enums;
 
-namespace ASM_01.DataAccessLayer.Entities;
+namespace ASM_01.DataAccessLayer.Entities.VehicleModels;
 
 public class Spec
 {

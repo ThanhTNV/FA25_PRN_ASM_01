@@ -1,4 +1,4 @@
-﻿namespace ASM_01.DataAccessLayer.Entities;
+﻿namespace ASM_01.DataAccessLayer.Entities.VehicleModels;
 
 public class TrimSpec
 {

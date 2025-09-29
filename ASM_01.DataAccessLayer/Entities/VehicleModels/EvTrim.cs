@@ -1,4 +1,6 @@
-﻿namespace ASM_01.DataAccessLayer.Entities;
+﻿using ASM_01.DataAccessLayer.Entities.Warehouse;
+
+namespace ASM_01.DataAccessLayer.Entities.VehicleModels;
 
 public class EvTrim
 {
@@ -11,4 +13,6 @@ public class EvTrim
     public virtual EvModel EvModel { get; set; } = null!;
     public virtual ICollection<TrimPrice> Prices { get; set; } = new List<TrimPrice>();
     public virtual ICollection<TrimSpec> TrimSpecs { get; set; } = new List<TrimSpec>();
+    public ICollection<VehicleStock> VehicleStocks { get; set; } = new List<VehicleStock>();
+    public ICollection<DistributionRequest> DistributionRequests { get; set; } = new List<DistributionRequest>();
 }

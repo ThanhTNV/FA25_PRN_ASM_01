@@ -1,4 +1,5 @@
-﻿using ASM_01.DataAccessLayer.Entities;
+﻿using ASM_01.DataAccessLayer.Entities.VehicleModels;
+using ASM_01.DataAccessLayer.Entities.Warehouse;
 using ASM_01.DataAccessLayer.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +15,7 @@ namespace ASM_01.DataAccessLayer.Persistence
     {
         public EVRetailsDbContext()
         {
-            
+
         }
         public EVRetailsDbContext(DbContextOptions<EVRetailsDbContext> options) : base(options)
         {
@@ -96,6 +97,16 @@ namespace ASM_01.DataAccessLayer.Persistence
                 new TrimSpec { EvTrimId = 4, SpecId = 4, Value = "25" },
                 new TrimSpec { EvTrimId = 4, SpecId = 5, Value = "5" }
             );
+
+            modelBuilder.Entity<Dealer>().HasData(
+                new Dealer { DealerId = 1, Name = "City EV Motors", Address = "New York, NY" }
+            );
+
+            modelBuilder.Entity<VehicleStock>().HasData(
+                new VehicleStock { VehicleStockId = 1, DealerId = 1, EvTrimId = 1, Quantity = 5 },
+                new VehicleStock { VehicleStockId = 2, DealerId = 1, EvTrimId = 3, Quantity = 3 }
+            );
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -119,5 +130,9 @@ namespace ASM_01.DataAccessLayer.Persistence
         public DbSet<TrimPrice> TrimPrices { get; set; }
         public DbSet<Spec> Specs { get; set; }
         public DbSet<TrimSpec> TrimSpecs { get; set; }
+        public DbSet<Dealer> Dealers { get; set; }
+        public DbSet<VehicleStock> VehicleStocks { get; set; }
+        public DbSet<DistributionRequest> DistributionRequests { get; set; }
+
     }
 }

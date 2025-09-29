@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ASM_01.DataAccessLayer.Entities;
+namespace ASM_01.DataAccessLayer.Entities.VehicleModels;
 
 public class EvModel
 {

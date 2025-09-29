@@ -1,4 +1,4 @@
-﻿using ASM_01.DataAccessLayer.Entities;
+﻿using ASM_01.DataAccessLayer.Entities.VehicleModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

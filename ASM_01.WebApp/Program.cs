@@ -12,6 +12,8 @@ builder.Services.AddDbContext<EVRetailsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<VehicleService>();
+builder.Services.AddScoped<DealerInventoryService>();
+builder.Services.AddScoped<DistributionManagementService>();
 
 var app = builder.Build();
 
