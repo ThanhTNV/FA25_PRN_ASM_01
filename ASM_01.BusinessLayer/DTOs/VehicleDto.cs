@@ -11,4 +11,6 @@ public class VehicleDto
     public Dictionary<string, string> Specifications { get; set; } = new();
     public int? ModelYear { get; internal set; }
     public int ModelId { get; internal set; }
+    public string? Description { get; internal set; }
+    public string Status { get; internal set; }
 }

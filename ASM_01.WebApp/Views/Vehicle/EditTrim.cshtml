@@ -12,7 +12,12 @@
         You are editing an existing trim. The vehicle model cannot be changed.
     </div>
 }
-
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">
+        <strong>Error:</strong> @ViewBag.Error
+    </div>
+}
 <form asp-controller="Vehicle" asp-action="EditTrim" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="EvTrimId" />

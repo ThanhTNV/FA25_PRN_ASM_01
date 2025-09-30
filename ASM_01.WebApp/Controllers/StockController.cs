@@ -1,4 +1,5 @@
 ﻿using ASM_01.BusinessLayer.Services;
+using ASM_01.BusinessLayer.Services.Abstract;
 using ASM_01.WebApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 namespace ASM_01.WebApp.Controllers
 {
     [Authorize(Roles = "DEALER, DISTRIBUTOR")]
-    public class StockController(DealerInventoryService _dealerInventoryService) : Controller
+    public class StockController(IDealerInventoryService _dealerInventoryService) : Controller
     {
         // GET: /Stock  (Dealer views their own stock)
         [Authorize(Roles = "DEALER")]

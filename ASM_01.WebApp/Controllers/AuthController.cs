@@ -1,4 +1,5 @@
 ﻿using ASM_01.BusinessLayer.Services;
+using ASM_01.BusinessLayer.Services.Abstract;
 using ASM_01.WebApp.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ASM_01.WebApp.Controllers;
 
-public class AuthController(SimpleAuthService authService) : Controller
+public class AuthController(ISimpleAuthService authService) : Controller
 {
     public IActionResult Login()
     {

@@ -4,59 +4,102 @@
     ViewData["Title"] = "Vehicle Details";
 }
 
-<h2>@Model.ModelName - @Model.TrimName</h2>
+<h2 class="mb-4">Vehicle Details</h2>
 
-<div class="card mb-3">
+<div class="card shadow-sm mb-4">
     <div class="card-body">
-        <h4 class="card-title">@Model.ModelName @Model.TrimName</h4>
-        <h5 class="card-subtitle mb-2 text-muted">
-            Price: @Model.Price.ToString("C")
-        </h5>
-        <p class="card-text">
-            <strong>Effective Date:</strong> @Model.EffectiveDate.ToShortDateString()
-        </p>
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <h3 class="card-title mb-1">@Model.ModelName - @Model.TrimName</h3>
+                <h5 class="card-subtitle text-muted">ID: #@Model.VehicleId</h5>
+            </div>
+
+            @* ✅ Status badge *@
+            <div>
+                @switch (Model.Status)
+                {
+                    case "Available":
+                        <span class="badge bg-success fs-6 px-3 py-2">@Model.Status</span>
+                        break;
+                    case "Unavailable":
+                        <span class="badge bg-secondary fs-6 px-3 py-2">@Model.Status</span>
+                        break;
+                    case "Upcoming":
+                        <span class="badge bg-warning text-dark fs-6 px-3 py-2">@Model.Status</span>
+                        break;
+                    case "Discontinued":
+                        <span class="badge bg-danger fs-6 px-3 py-2">@Model.Status</span>
+                        break;
+                    default:
+                        <span class="badge bg-light text-dark fs-6 px-3 py-2">@Model.Status</span>
+                        break;
+                }
+            </div>
+        </div>
+
+        <hr />
+
+        <h5 class="mb-2">Price Information</h5>
+        <p class="mb-1"><strong>Price:</strong> @Model.Price.ToString("C")</p>
+        <p class="mb-3"><strong>Effective Date:</strong> @Model.EffectiveDate.ToShortDateString()</p>
 
         @if (!string.IsNullOrEmpty(Model.Description))
         {
-            <p class="card-text">
-                <strong>Description:</strong> @Model.Description
-            </p>
+            <h5 class="mb-2">Description</h5>
+            <p class="card-text">@Model.Description</p>
         }
     </div>
 </div>
 
-<h3>Specifications</h3>
-@if (Model.Specifications != null && Model.Specifications.Any())
-{
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Specification</th>
-                <th>Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var spec in Model.Specifications)
-            {
-                <tr>
-                    <td>@spec.Key</td>
-                    <td>@spec.Value</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No specifications available for this vehicle.</p>
-}
+@* ✅ Specifications Section *@
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h4 class="card-title mb-3">Specifications</h4>
 
-<a asp-action="Catalog" class="btn btn-secondary">Back to Catalog</a>
-@if (User.IsInRole("DISTRIBUTOR"))
-{
-    <a asp-controller="Inventory" asp-action="Index" class="btn btn-secondary">Back to Dealers</a>
-}
-@if (User.IsInRole("DEALER"))
-{
-    <a asp-controller="Stock" asp-action="Index" class="btn btn-secondary">Back to Inventory</a>
-}
+        @if (Model.Specifications != null && Model.Specifications.Any())
+        {
+            <table class="table table-bordered table-striped table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 40%;">Specification</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var spec in Model.Specifications)
+                    {
+                        <tr>
+                            <td>@spec.Key</td>
+                            <td>@spec.Value</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-muted">No specifications available for this vehicle.</p>
+        }
+    </div>
+</div>
+
+@* ✅ Action Buttons *@
+<div class="d-flex gap-2">
+    <a asp-action="Catalog" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left-circle"></i> Back to Catalog
+    </a>
+
+    @if (User.IsInRole("DISTRIBUTOR"))
+    {
+        <a asp-controller="Inventory" asp-action="Index" class="btn btn-outline-primary">
+            <i class="bi bi-building"></i> Back to Dealers
+        </a>
+    }
+
+    @if (User.IsInRole("DEALER"))
+    {
+        <a asp-controller="Stock" asp-action="Index" class="btn btn-outline-success">
+            <i class="bi bi-box-seam"></i> Back to Inventory
+        </a>
+    }
+</div>

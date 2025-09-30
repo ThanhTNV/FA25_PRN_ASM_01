@@ -6,4 +6,5 @@ public class UpdateVehicleModelStatusDto
 {
     public int EvModelId { get; set; }
     public EvStatus Status { get; set; }
+    public string? Description { get; set; }
 }

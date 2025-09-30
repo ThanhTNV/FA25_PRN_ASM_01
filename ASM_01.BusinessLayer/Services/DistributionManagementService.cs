@@ -1,4 +1,5 @@
 ﻿using ASM_01.BusinessLayer.DTOs;
+using ASM_01.BusinessLayer.Services.Abstract;
 using ASM_01.DataAccessLayer.Entities.Warehouse;
 using ASM_01.DataAccessLayer.Enums;
 using ASM_01.DataAccessLayer.Persistence;
@@ -6,14 +7,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ASM_01.BusinessLayer.Services;
 
-public class DistributionManagementService
+public class DistributionManagementService : IDistributionManagementService
 {
     private readonly EVRetailsDbContext _db;
     public DistributionManagementService(EVRetailsDbContext db)
     {
         _db = db;
     }
-    // === Dealer Stock ===
     public async Task AddOrUpdateStockAsync(int dealerId, int evTrimId, int deltaQuantity, CancellationToken ct = default)
     {
         if (deltaQuantity == 0) return;
@@ -46,8 +46,6 @@ public class DistributionManagementService
 
         await _db.SaveChangesAsync(ct);
     }
-
-    // === Distribution Requests ===
 
     public async Task<DistributionRequest> CreateRequestAsync(int dealerId, int evTrimId, int requestedQty, CancellationToken ct = default)
     {
@@ -119,9 +117,6 @@ public class DistributionManagementService
         return req;
     }
 
-    /// <summary>
-    /// Marks an approved request as completed and increases the dealer's stock by the approved quantity.
-    /// </summary>
     public async Task<DistributionRequest> CompleteRequestAsync(int requestId, CancellationToken ct = default)
     {
         var req = await _db.DistributionRequests.FirstOrDefaultAsync(r => r.DistributionRequestId == requestId, ct)

@@ -1,4 +1,5 @@
 ﻿using ASM_01.BusinessLayer.DTOs;
+using ASM_01.BusinessLayer.Services.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ASM_01.BusinessLayer.Services
 {
-    public class SimpleAuthService
+    public class SimpleAuthService : ISimpleAuthService
     {
         /// <summary>
         /// Login method that validates username and password and returns an AuthDto if successful.

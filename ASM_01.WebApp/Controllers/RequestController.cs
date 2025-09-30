@@ -1,4 +1,5 @@
 ﻿using ASM_01.BusinessLayer.Services;
+using ASM_01.BusinessLayer.Services.Abstract;
 using ASM_01.DataAccessLayer.Enums;
 using ASM_01.WebApp.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +10,7 @@ using System.Security.Claims;
 namespace ASM_01.WebApp.Controllers
 {
     [Authorize]
-    public class RequestController(DistributionManagementService _distributionManagementService, VehicleService _vehicleService) : Controller
+    public class RequestController(IDistributionManagementService _distributionManagementService, IVehicleService _vehicleService) : Controller
     {
         [Authorize(Roles = "DEALER")]
         public async Task<IActionResult> MyRequests()

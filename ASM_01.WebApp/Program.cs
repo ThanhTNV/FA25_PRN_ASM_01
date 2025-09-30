@@ -1,4 +1,5 @@
 using ASM_01.BusinessLayer.Services;
+using ASM_01.BusinessLayer.Services.Abstract;
 using ASM_01.DataAccessLayer;
 using ASM_01.DataAccessLayer.Persistence;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -12,10 +13,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<EVRetailsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<SimpleAuthService>();
-builder.Services.AddScoped<VehicleService>();
-builder.Services.AddScoped<DealerInventoryService>();
-builder.Services.AddScoped<DistributionManagementService>();
+builder.Services.AddScoped<ISimpleAuthService, SimpleAuthService>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();
+builder.Services.AddScoped<IDealerInventoryService, DealerInventoryService>();
+builder.Services.AddScoped<IDistributionManagementService, DistributionManagementService>();
 builder.Services
                 .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>

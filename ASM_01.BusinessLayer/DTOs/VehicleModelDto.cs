@@ -13,5 +13,6 @@ namespace ASM_01.BusinessLayer.DTOs
         public string ModelName { get; set; } = null!;
         public string? Description { get; set; }
         public EvStatus Status { get; set; }
+        public int? ModelYear { get; internal set; }
     }
 }

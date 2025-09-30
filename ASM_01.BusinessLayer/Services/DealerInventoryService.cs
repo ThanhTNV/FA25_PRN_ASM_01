@@ -1,10 +1,11 @@
 ﻿using ASM_01.BusinessLayer.DTOs;
+using ASM_01.BusinessLayer.Services.Abstract;
 using ASM_01.DataAccessLayer.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace ASM_01.BusinessLayer.Services;
 
-public class DealerInventoryService
+public class DealerInventoryService : IDealerInventoryService
 {
     private readonly EVRetailsDbContext _db;
 
@@ -34,9 +35,6 @@ public class DealerInventoryService
             .FirstOrDefaultAsync(ct) ?? 0;
     }
 
-    /// <summary>
-    /// Flat inventory for a dealer (by trim).
-    /// </summary>
     public async Task<IReadOnlyList<DealerStockDto>> GetDealerInventoryAsync(int dealerId, CancellationToken ct = default)
     {
         return await _db.VehicleStocks
@@ -54,9 +52,6 @@ public class DealerInventoryService
             .ToListAsync(ct);
     }
 
-    /// <summary>
-    /// Inventory grouped by model (sum trims).
-    /// </summary>
     public async Task<IReadOnlyList<ModelStockDto>> GetInventoryByModelAsync(int dealerId, CancellationToken ct = default)
     {
         return await _db.VehicleStocks

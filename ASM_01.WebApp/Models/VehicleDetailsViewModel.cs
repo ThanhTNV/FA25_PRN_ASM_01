@@ -9,4 +9,5 @@ public class VehicleDetailsViewModel
     public DateTime EffectiveDate { get; set; }
     public string? Description { get; set; }
     public Dictionary<string, string> Specifications { get; set; } = new();
+    public string Status { get; set; } = string.Empty;
 }

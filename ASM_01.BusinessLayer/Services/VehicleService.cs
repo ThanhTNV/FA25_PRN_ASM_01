@@ -1,11 +1,12 @@
 ﻿using ASM_01.BusinessLayer.DTOs;
+using ASM_01.BusinessLayer.Services.Abstract;
 using ASM_01.DataAccessLayer.Entities.VehicleModels;
 using ASM_01.DataAccessLayer.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace ASM_01.BusinessLayer.Services;
 
-public class VehicleService(EVRetailsDbContext _db)
+public class VehicleService(EVRetailsDbContext _db) : IVehicleService
 {
     public async Task<IEnumerable<VehicleDto>> GetAllVehicles()
     {
@@ -28,9 +29,11 @@ public class VehicleService(EVRetailsDbContext _db)
                 TrimName = t.TrimName,
                 TrimId = t.EvTrimId,
                 ModelYear = t.ModelYear,
+                Description = t.Description,
+                Status = t.EvModel.Status.ToString(),
                 Price = latestPrice?.ListedPrice ?? 0,
                 EffectiveDate = latestPrice?.EffectiveDate ?? DateTime.MinValue,
-                Specifications = new Dictionary<string, string>() // fill later
+                Specifications = new Dictionary<string, string>()
             };
         }).ToList();
 
@@ -80,12 +83,13 @@ public class VehicleService(EVRetailsDbContext _db)
             VehicleId = trim.EvTrimId,
             ModelName = trim.EvModel.ModelName,
             TrimName = trim.TrimName,
+            Description = trim.Description,
+            Status = trim.EvModel.Status.ToString(),
             Price = latestPrice?.ListedPrice ?? 0,
             EffectiveDate = latestPrice?.EffectiveDate ?? DateTime.MinValue,
             Specifications = specs
         };
     }
-
 
     public async Task<IEnumerable<VehicleDto>> SearchVehicles(string keyword)
     {
@@ -136,6 +140,9 @@ public class VehicleService(EVRetailsDbContext _db)
                 VehicleId = t.EvTrimId,
                 ModelName = t.EvModel.ModelName,
                 TrimName = t.TrimName,
+                Description = t.Description,
+                Status = t.EvModel.Status.ToString(),
+                ModelYear = t.ModelYear,
                 Price = latestPrice?.ListedPrice ?? 0,
                 EffectiveDate = latestPrice?.EffectiveDate ?? DateTime.MinValue,
                 Specifications = specs
@@ -144,7 +151,6 @@ public class VehicleService(EVRetailsDbContext _db)
 
         return result;
     }
-
 
     public async Task<IEnumerable<VehicleComparisonDto>> CompareVehicles(int[] vehicleIds)
     {
@@ -240,7 +246,6 @@ public class VehicleService(EVRetailsDbContext _db)
         _db.EvTrims.Add(trim);
         await _db.SaveChangesAsync(ct);
 
-        // Optional: create initial price
         if (dto.ListedPrice.HasValue)
         {
             var price = new TrimPrice
@@ -265,12 +270,14 @@ public class VehicleService(EVRetailsDbContext _db)
 
         // Update status
         model.Status = dto.Status;
+        model.Description = dto.Description;
 
         _db.EvModels.Update(model);
         await _db.SaveChangesAsync(ct);
 
         return model;
     }
+    
     public async Task<TrimPrice> UpdateVehicleTrimPriceAsync(UpdateVehicleTrimPriceDto dto, CancellationToken ct = default)
     {
         if (dto.NewListedPrice <= 0)
@@ -309,7 +316,23 @@ public class VehicleService(EVRetailsDbContext _db)
             EvModelId = model.EvModelId,
             ModelName = model.ModelName,
             Description = model.Description,
+            ModelYear = model.Trims.Max(t => t.ModelYear),
             Status = model.Status
         };
+    }
+    public async Task<IEnumerable<VehicleModelDto>> GetAllModel()
+    {
+        var models = await _db.EvModels
+            .Include(m => m.Trims)
+            .ThenInclude(t => t.Prices)
+            .ToListAsync();
+        return models.Select(model => new VehicleModelDto
+        {
+            EvModelId = model.EvModelId,
+            ModelName = model.ModelName,
+            Description = model.Description,
+            ModelYear = model.Trims.Max(t => t.ModelYear),
+            Status = model.Status
+        });
     }
 }

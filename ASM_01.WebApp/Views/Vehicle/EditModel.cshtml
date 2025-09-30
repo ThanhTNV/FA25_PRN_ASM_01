@@ -3,37 +3,60 @@
 @{
     ViewData["Title"] = "Edit Vehicle Model";
     var isCreate = (Model == null) || Model.EvModelId == 0;
-    var roAttr = isCreate ? "false" : "true";   // minimized attribute for inputs/textarea
 }
 
 <h2>@(isCreate ? "Create Vehicle Model" : "Edit Vehicle Model")</h2>
 
 @if (!isCreate)
 {
-    <div class="alert alert-info">In edit mode, only <strong>Status</strong> can be changed. Model Name and Description are locked.</div>
+    <div class="alert alert-info">
+        In edit mode, only <strong>Status</strong> can be changed.
+        Model Name and Description are locked.
+    </div>
+}
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">
+        <strong>Error:</strong> @ViewBag.Error
+    </div>
 }
 
 <form asp-controller="Vehicle" asp-action="EditModel" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="EvModelId" />
 
+    @* Model Name *@
     <div class="mb-3">
         <label asp-for="ModelName" class="form-label"></label>
-        <input asp-for="ModelName" class="form-control" readonly="@roAttr" />
+        @if (isCreate)
+        {
+            <input asp-for="ModelName" class="form-control" />
+        }
+        else
+        {
+            <input asp-for="ModelName" class="form-control" readonly />
+        }
         <span asp-validation-for="ModelName" class="text-danger"></span>
     </div>
 
+    @* Description *@
     <div class="mb-3">
         <label asp-for="Description" class="form-label"></label>
-        <textarea asp-for="Description" class="form-control" rows="3" readonly="@roAttr"></textarea>
+        @if (isCreate)
+        {
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        }
+        else
+        {
+            <textarea asp-for="Description" class="form-control" rows="3" readonly></textarea>
+        }
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
 
+    @* Status (always editable) *@
     <div class="mb-3">
         <label asp-for="Status" class="form-label"></label>
-        <select asp-for="Status"
-                asp-items="Html.GetEnumSelectList<EvStatus>()"
-                class="form-control"></select>
+        <select asp-for="Status" asp-items="Html.GetEnumSelectList<EvStatus>()" class="form-control"></select>
         <span asp-validation-for="Status" class="text-danger"></span>
     </div>
 
