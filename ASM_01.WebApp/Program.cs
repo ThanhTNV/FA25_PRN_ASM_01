@@ -2,6 +2,8 @@ using ASM_01.BusinessLayer.Services;
 using ASM_01.BusinessLayer.Services.Abstract;
 using ASM_01.DataAccessLayer;
 using ASM_01.DataAccessLayer.Persistence;
+using ASM_01.DataAccessLayer.Repositories;
+using ASM_01.DataAccessLayer.Repositories.Abstract;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +15,14 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<EVRetailsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Repository registrations
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
+builder.Services.AddScoped<IDealerRepository, DealerRepository>();
+builder.Services.AddScoped<IStockRepository, StockRepository>();
+builder.Services.AddScoped<IDistributionRequestRepository, DistributionRequestRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Service registrations
 builder.Services.AddScoped<ISimpleAuthService, SimpleAuthService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IDealerInventoryService, DealerInventoryService>();
